@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "180371704263",
+    "project_id": "mynotes-followpls",
+    "storage_bucket": "mynotes-followpls.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:180371704263:android:b3a2d82e881d3d0a0c71e2",
+        "android_client_info": {
+          "package_name": "com.dotech.mynotes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "180371704263-632ram8koebkotfi9s9aflec2jjllk2f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8Q8W83HaDRNaVFcGVhT_HdoUBN4yaTXc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "180371704263-632ram8koebkotfi9s9aflec2jjllk2f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

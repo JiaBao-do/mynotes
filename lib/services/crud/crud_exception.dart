@@ -1,6 +1,6 @@
-class DatabaseOpenedException implements Exception {}
+class DatabaseAlreadyOpenException implements Exception {}
 
-class MissingDocumentsException implements Exception {}
+class UnableToGetDocumentsDirectory implements Exception {}
 
 class DatabaseIsNotOpened implements Exception {}
 

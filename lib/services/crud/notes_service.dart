@@ -203,7 +203,6 @@ class NotesService {
       where: 'id = ?',
       whereArgs: [id],
     );
-
     if (notes.isEmpty) {
       throw CouldNotFindNote();
     } else {
@@ -327,6 +326,7 @@ const createNoteTable = '''CREATE TABLE IF NOT EXISTS "note" (
                                 "user_id"	INTEGER NOT NULL,
                                 "text"	TEXT,
                                 "is_synced_with_cloud"	INTEGER NOT NULL DEFAULT 0,
-                                FOREIGN KEY("user_id") REFERENCES "user"("id"),
-                                PRIMARY KEY("id" AUTOINCREMENT)
+                                PRIMARY KEY("id" AUTOINCREMENT),
+                                FOREIGN KEY("user_id") REFERENCES "user"("id")
+                              );
                               ''';

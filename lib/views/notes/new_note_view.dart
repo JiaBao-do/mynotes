@@ -23,7 +23,7 @@ class _NewNoteViewState extends State<NewNoteView> {
 
   @override
   void dispose() {
-    _deleteNoteIfTExtIsEmpty();
+    _deleteNoteIfTextIsEmpty();
     _saveNoteIfTextNotEmpty();
     _textController.dispose();
     super.dispose();
@@ -31,17 +31,21 @@ class _NewNoteViewState extends State<NewNoteView> {
 
   Future<DatabaseNote> createNewNote() async {
     final existingNote = _note;
-    if (existingNote != null) return existingNote;
+    if (existingNote != null) {
+      return existingNote;
+    }
 
     final currentUser = AuthService.firebase().currentUser!;
     final email = currentUser.email!;
     final owner = await _notesService.getUser(email: email);
+
     return await _notesService.createNote(owner: owner);
   }
 
-  void _deleteNoteIfTExtIsEmpty() {
+  void _deleteNoteIfTextIsEmpty() {
     final note = _note;
-    if (_textController.text.isEmpty && note != null) {
+    final text = _textController.text;
+    if (text.isEmpty && note != null) {
       _notesService.deleteNote(id: note.id);
     }
   }
@@ -75,28 +79,29 @@ class _NewNoteViewState extends State<NewNoteView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text('New Note'),
-        ),
-        body: FutureBuilder(
-          future: createNewNote(),
-          builder: (context, snapshot) {
-            switch (snapshot.connectionState) {
-              case ConnectionState.done:
-                //_note = snapshot.data as DatabaseNote;
-                _setupTextControllerListner();
-                return TextField(
-                  controller: _textController,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: null,
-                  decoration: const InputDecoration(
-                    hintText: 'Type your note...',
-                  ),
-                );
-              default:
-                return const CircularProgressIndicator();
-            }
-          },
-        ));
+      appBar: AppBar(
+        title: const Text('New Note'),
+      ),
+      body: FutureBuilder(
+        future: createNewNote(),
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              _note = snapshot.data as DatabaseNote;
+              _setupTextControllerListner();
+              return TextField(
+                controller: _textController,
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                decoration: const InputDecoration(
+                  hintText: 'Type your note...',
+                ),
+              );
+            default:
+              return const CircularProgressIndicator();
+          }
+        },
+      ),
+    );
   }
 }

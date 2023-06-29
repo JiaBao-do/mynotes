@@ -7,18 +7,21 @@ import 'package:path/path.dart' show join;
 
 class NotesService {
   Database? _db;
-
   List<DatabaseNote> _notes = [];
+  late final StreamController<List<DatabaseNote>> _notesStreamController;
 
   //private initializer to get static instance
   static final NotesService _shared = NotesService._sharedInstance();
   //named constructor
-  NotesService._sharedInstance();
-  //factory constructor
+  NotesService._sharedInstance() {
+    _notesStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _notesStreamController.sink.add(_notes);
+      },
+    );
+  }
+  //factory constructor, for public access
   factory NotesService() => _shared;
-
-  final _notesStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
 
   Stream<List<DatabaseNote>> get allNotes => _notesStreamController.stream;
 
@@ -50,7 +53,9 @@ class NotesService {
   }
 
   Future<void> open() async {
-    if (_db != null) throw DatabaseAlreadyOpenException();
+    if (_db != null) {
+      throw DatabaseAlreadyOpenException();
+    }
 
     try {
       final docsPath = await getApplicationDocumentsDirectory();
@@ -109,7 +114,7 @@ class NotesService {
       where: 'email = ?',
       whereArgs: [email.toLowerCase()],
     );
-    if (results.isEmpty) {
+    if (results.isNotEmpty) {
       throw UserAlreadyExists();
     }
     final userId = await db.insert(userTable, {
@@ -131,6 +136,7 @@ class NotesService {
       where: 'email = ?',
       whereArgs: [email.toLowerCase()],
     );
+
     if (results.isEmpty) {
       throw CouldNotFindUser();
     } else {
@@ -219,12 +225,7 @@ class NotesService {
     final db = _getDatabaseOrThrow();
     final notes = await db.query(noteTable);
 
-    final result = notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
-    if (notes.isEmpty) {
-      throw CouldNotFindNote();
-    } else {
-      return result;
-    }
+    return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
   }
 
   Future<DatabaseNote> updateNote({
@@ -315,18 +316,21 @@ const emailColumn = 'email';
 const userIdColumn = 'user_id';
 const textColumn = 'text';
 const isSyncedWithCloudColumn = 'is_synced_with_cloud';
-const createUserTable = '''CREATE TABLE IF NOT EXISTS "user" (
-                                "id"	INTEGER NOT NULL,
-                                "email"	TEXT NOT NULL UNIQUE,
-                                PRIMARY KEY("id" AUTOINCREMENT)
-                              );
-                              ''';
-const createNoteTable = '''CREATE TABLE IF NOT EXISTS "note" (
-                                "id"	INTEGER NOT NULL,
-                                "user_id"	INTEGER NOT NULL,
-                                "text"	TEXT,
-                                "is_synced_with_cloud"	INTEGER NOT NULL DEFAULT 0,
-                                PRIMARY KEY("id" AUTOINCREMENT),
-                                FOREIGN KEY("user_id") REFERENCES "user"("id")
-                              );
-                              ''';
+const createUserTable = '''--DROP TABLE IF EXISTS "user";
+                          CREATE TABLE IF NOT EXISTS "user" (
+                            "id"	INTEGER NOT NULL,
+                            "email"	TEXT NOT NULL UNIQUE,
+                            PRIMARY KEY("id" AUTOINCREMENT)
+                          );
+                        ''';
+
+const createNoteTable = '''--DROP TABLE IF EXISTS "note";
+                          CREATE TABLE IF NOT EXISTS "note" (
+                            "id"	INTEGER NOT NULL,
+                            "user_id"	INTEGER NOT NULL,
+                            "text"	TEXT,
+                            "is_synced_with_cloud"	INTEGER NOT NULL DEFAULT 0,
+                            PRIMARY KEY("id" AUTOINCREMENT),
+                            FOREIGN KEY("user_id") REFERENCES "user"("id")
+                          );
+                        ''';
